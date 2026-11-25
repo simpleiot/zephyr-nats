@@ -1,0 +1,26 @@
+# Manifest for building this module on its own, which continuous integration
+# uses to create a workspace around the checkout. Applications using the
+# module do not need this file: they add zephyr-nats to the projects list of
+# their own manifest, as the README describes.
+
+manifest:
+  self:
+    path: modules/lib/zephyr-nats
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v4.4.1
+      import:
+        # native_sim needs very little, and every module cloned here adds
+        # time to every run. mbedtls and tf-psa-crypto are for the TLS tests.
+        name-allowlist:
+          - cmsis
+          - cmsis_6
+          - picolibc
+          - mbedtls
+          - tf-psa-crypto

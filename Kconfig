@@ -1,0 +1,109 @@
+# Copyright (c) 2026 Cliff Brake
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig NATS
+	bool "NATS client"
+	depends on NETWORKING
+	select NET_SOCKETS
+	help
+	  Enable a client for the NATS core protocol: publish, subscribe,
+	  request/reply, and headers, with automatic reconnect.
+
+if NATS
+
+config NATS_RX_BUF_SIZE
+	int "Receive buffer size"
+	default 1024
+	range 128 65536
+	help
+	  Largest protocol line plus payload the client can receive. A larger
+	  message is dropped and counted, and the connection stays up.
+
+config NATS_TX_BUF_SIZE
+	int "Transmit buffer size"
+	default 512
+	range 128 65536
+	help
+	  Buffer for outgoing protocol lines and headers. A message whose line,
+	  headers, and payload fit is sent in one write; a larger payload is
+	  sent from the caller's buffer. CONNECT, with the client name and
+	  credentials, must fit.
+
+config NATS_MAX_SUBS
+	int "Subscriptions per client"
+	default 8
+	range 1 64
+
+config NATS_MAX_SUBJECT_LEN
+	int "Longest subscription subject"
+	default 128
+	range 16 256
+	help
+	  Each subscription stores its subject so it can be restored on
+	  reconnect. Includes the terminating NUL.
+
+config NATS_MAX_QUEUE_LEN
+	int "Longest queue group name"
+	default 32
+	range 2 128
+	help
+	  Includes the terminating NUL.
+
+config NATS_MAX_PENDING_REQUESTS
+	int "Requests in flight per client"
+	default 2
+	range 1 16
+
+config NATS_THREAD_STACK_SIZE
+	int "Receive thread stack size"
+	default 2048
+	help
+	  Subscription and event callbacks run on this stack.
+
+config NATS_THREAD_PRIORITY
+	int "Receive thread priority"
+	default 7
+
+config NATS_CONNECT_TIMEOUT_MS
+	int "Handshake timeout in milliseconds"
+	default 10000
+	help
+	  Time allowed from TCP connect to the server's first PONG.
+
+config NATS_PING_INTERVAL_MS
+	int "Client PING interval in milliseconds"
+	default 120000
+
+config NATS_MAX_PINGS_OUT
+	int "Unanswered PINGs before reconnecting"
+	default 2
+	range 1 100
+
+config NATS_RECONNECT_MIN_MS
+	int "First reconnect delay in milliseconds"
+	default 1000
+	range 2 3600000
+
+config NATS_RECONNECT_MAX_MS
+	int "Longest reconnect delay in milliseconds"
+	default 30000
+	range 2 3600000
+
+config NATS_TLS
+	bool "TLS"
+	depends on NET_SOCKETS_SOCKOPT_TLS
+	help
+	  Enable tls:// URLs. The client starts TLS before the server sends
+	  INFO, so the server needs "handshake_first: true" in its tls block.
+
+config NATS_HEADERS
+	bool "Message headers"
+	default y
+	help
+	  Enable HPUB and HMSG, and the no-responders status for requests.
+
+module = NATS
+module-str = NATS client
+source "subsys/logging/Kconfig.template.log_config"
+
+endif # NATS

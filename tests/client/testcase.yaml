@@ -1,0 +1,16 @@
+common:
+  tags:
+    - net
+    - nats
+  platform_allow:
+    - native_sim
+  integration_platforms:
+    - native_sim
+  # These tests need a nats-server, so twister only builds them.
+  # scripts/run-client-tests.sh starts the servers and runs them.
+  build_only: true
+tests:
+  nats.client: {}
+  nats.client.tls:
+    extra_args:
+      - EXTRA_CONF_FILE=overlay-tls.conf

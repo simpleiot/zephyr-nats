@@ -1,0 +1,18 @@
+sample:
+  description: Make a NATS request every few seconds
+  name: nats_request
+common:
+  tags:
+    - net
+    - nats
+  platform_allow:
+    - native_sim
+  integration_platforms:
+    - native_sim
+tests:
+  sample.net.nats.request:
+    build_only: true
+  sample.net.nats.request.host:
+    build_only: true
+    extra_args:
+      - EXTRA_CONF_FILE=overlay-host.conf
