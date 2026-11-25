@@ -160,23 +160,54 @@ samples/pubsub/       publish and subscribe against a server
 samples/request/      request/reply
 tests/parser/         ztest suite for the protocol parser
 tests/client/         ztest suite against a local nats-server
+scripts/              test runners that start nats-server
 ```
 
 ## Testing
 
-The parser tests run on `native_sim` with no network:
+Most tests run on the host with `native_sim` and a real `nats-server`, so they
+need no hardware and can run in CI.
+
+### Parser tests
+
+`tests/parser` is a ztest suite with no network. It feeds recorded protocol
+streams (`INFO`, `MSG`, `HMSG`, `PING`, `+OK`, `-ERR`, malformed and
+oversize lines) to the parser, split at every byte boundary to cover partial
+reads. It also checks that an oversize payload is dropped and counted while the
+parser stays in sync. URL parsing, subject validation, and header encoding are
+tested the same way.
 
 ```sh
 west twister -T tests/parser -p native_sim
 ```
 
-The client tests run on `native_sim` with native sockets and need a
-`nats-server` listening on `localhost:4222`:
+### Client tests
+
+`tests/client` runs on `native_sim` with native host sockets against a
+`nats-server` that a script starts on a free port. It covers:
+
+- connect, publish, subscribe, wildcards, and queue groups
+- unsubscribe after N messages, request/reply with timeout, headers, and flush
+- token and user/password authentication, including rejected credentials
+- reconnect after the server restarts: events, resubscription, and backoff
+- stale connection detection while the server is paused (`kill -STOP`)
+- TLS against a server using a CA generated for the test
 
 ```sh
-nats-server &
-west twister -T tests/client -p native_sim
+scripts/run-client-tests.sh
 ```
+
+### Interoperability
+
+The samples are checked against the `nats` CLI (`nats sub`, `nats pub`,
+`nats reply`), so the wire format is verified against the reference Go client
+as well as this one.
+
+### Hardware
+
+The pubsub sample runs on a supported board against a server on the LAN. This
+measures stack use (`CONFIG_THREAD_ANALYZER`) and RAM and flash size, which set
+the Kconfig defaults.
 
 ## License
 
