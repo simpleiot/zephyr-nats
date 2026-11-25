@@ -609,12 +609,13 @@ ZTEST(nats_client, test_reconnect)
 
 ZTEST(nats_client, test_stale_connection)
 {
+	int32_t limit = CONFIG_NATS_PING_INTERVAL_MS * (CONFIG_NATS_MAX_PINGS_OUT + 2);
+
 	start(&client_a, &ev_a, url_proxy);
 
 	/* The server stops answering, so PINGs go unanswered. */
 	atomic_set(&proxy_mode, PROXY_BLACKHOLE);
-	zassert_ok(k_sem_take(&ev_a.disconnected,
-			      K_MSEC(CONFIG_NATS_PING_INTERVAL_MS * (CONFIG_NATS_MAX_PINGS_OUT + 2))));
+	zassert_ok(k_sem_take(&ev_a.disconnected, K_MSEC(limit)));
 
 	atomic_set(&proxy_mode, PROXY_FORWARD);
 	atomic_set(&proxy_kill, 1);

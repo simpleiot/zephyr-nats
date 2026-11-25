@@ -504,7 +504,7 @@ static int handle_op(struct nats_client *c, const struct nats_url *url, const st
 	case NATS_OP_ERR:
 		LOG_WRN("server error: %s", op->args);
 		emit(c, NATS_EVENT_ERROR, op->args);
-		/* An error before the handshake completes, such as failed authorization, is fatal. */
+		/* An error before the handshake completes, such as bad credentials, is fatal. */
 		return c->state == NATS_STATE_HANDSHAKE ? -EACCES : 0;
 
 	case NATS_OP_OK:

@@ -45,7 +45,10 @@ wait_for() {
     fail "'$pattern' not found in $file"
 }
 
-port=$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')
+port=$(python3 -c 'import socket
+s = socket.socket()
+s.bind(("127.0.0.1", 0))
+print(s.getsockname()[1])')
 url="nats://127.0.0.1:$port"
 
 for sample in pubsub request; do

@@ -183,6 +183,7 @@ struct nats_client {
 	struct nats_stats stats;
 
 	struct k_thread thread;
+
 	K_KERNEL_STACK_MEMBER(stack, CONFIG_NATS_THREAD_STACK_SIZE);
 
 	uint8_t rx_buf[CONFIG_NATS_RX_BUF_SIZE];

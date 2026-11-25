@@ -28,7 +28,10 @@ cleanup() {
 trap cleanup EXIT
 
 free_port() {
-    python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])'
+    python3 -c 'import socket
+s = socket.socket()
+s.bind(("127.0.0.1", 0))
+print(s.getsockname()[1])'
 }
 
 wait_port() {
